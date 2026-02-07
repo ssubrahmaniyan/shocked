@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Are You a Good Medico?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+
+    h1 {
+      color: #d6336c;
+    }
+
+    .question {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .options button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      background: #ffe3ec;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.2s;
+    }
+
+    .options button:hover {
+      background: #f783ac;
+      color: white;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1 id="title">Are you a good medico? 🩺</h1>
+    <p class="question" id="question">
+      Let’s find out how well you know the human body… especially when it’s in love 💕
+    </p>
+
+    <div class="options" id="options">
+      <button onclick="nextQuestion()">Start Quiz</button>
+    </div>
+
+    <p class="small" id="footer"></p>
+  </div>
+
+  <script>
+    const quiz = [
+      {
+        q: "When someone falls in love, which hormone spikes the most?",
+        a: ["Dopamine", "Oxytocin", "Serotonin", "All of the above"]
+      },
+      {
+        q: "Why does your heart rate increase around someone you love?",
+        a: [
+          "Sympathetic nervous system activation",
+          "Adrenaline release",
+          "Because love is cardio",
+          "All of the above (obviously)"
+        ]
+      },
+      {
+        q: "Why do people feel butterflies in their stomach?",
+        a: [
+          "Reduced blood flow to the GI tract",
+          "Autonomic nervous system response",
+          "The stomach is dramatic",
+          "Science + feelings"
+        ]
+      },
+      {
+        q: "Being in love can actually reduce:",
+        a: [
+          "Stress levels",
+          "Perceived pain",
+          "Loneliness",
+          "All of the above"
+        ]
+      },
+      {
+        q: "Final and most important question:",
+        a: [
+          "Am I clinically adorable?",
+          "Is this quiz biased?",
+          "Do you want to be my Valentine?",
+          "Yes."
+        ]
+      }
+    ];
+
+    let index = 0;
+
+    function nextQuestion() {
+      if (index < quiz.length) {
+        document.getElementById("question").innerText = quiz[index].q;
+        const optionsDiv = document.getElementById("options");
+        optionsDiv.innerHTML = "";
+
+        quiz[index].a.forEach(opt => {
+          const btn = document.createElement("button");
+          btn.innerText = opt;
+          btn.onclick = () => {
+            index++;
+            nextQuestion();
+          };
+          optionsDiv.appendChild(btn);
+        });
+
+        document.getElementById("footer").innerText =
+          `Question ${index + 1} of ${quiz.length}`;
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      document.getElementById("title").innerText = "Diagnosis: 💖 Valentine 💖";
+      document.getElementById("question").innerHTML = `
+        According to extensive research (conducted entirely by me),
+        you are an excellent medico <br><br>
+        and regardless of your answers…<br><br>
+        <strong>Thank you for being my Valentine 🥰</strong>
+      `;
+      document.getElementById("options").innerHTML = `
+        <button onclick="confetti()">Aww ❤️</button>
+      `;
+      document.getElementById("footer").innerText = "Case closed.";
+    }
+
+    function confetti() {
+      alert("💘 Officially Valentines 💘");
+    }
+  </script>
+
+</body>
+</html>
