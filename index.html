@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Are You a Good Medico?</title>
+<title>Emergency Medico Assessment</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -10,26 +10,24 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: "Segoe UI", sans-serif;
-  background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+  background: radial-gradient(circle, #000 0%, #240000 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .card {
-  background: white;
+  background: #fff;
   padding: 28px;
   border-radius: 18px;
   max-width: 580px;
   width: 94%;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  box-shadow: 0 12px 40px rgba(255,0,0,0.4);
   text-align: center;
   animation: fade 1s ease-in;
-}
-
-@keyframes fade {
-  from {opacity:0; transform:translateY(20px);}
-  to {opacity:1; transform:translateY(0);}
+  position: relative;
+  z-index: 2;
 }
 
 h1 { color: #c2255c; }
@@ -54,216 +52,285 @@ button {
 button:hover {
   background: #f06595;
   color: white;
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
-.rules {
-  text-align: left;
-  font-size: 14px;
-  color: #444;
+.flash { animation: flash 0.6s; }
+.shake { animation: shake 0.5s; }
+
+@keyframes fade { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+@keyframes flash { 0%{background:#fff;}50%{background:#ff0000;}100%{background:#fff;} }
+@keyframes shake { 0%{transform:translate(0,0)}25%{transform:translate(5px,0)}50%{transform:translate(-5px,0)}75%{transform:translate(5px,0)}100%{transform:translate(0,0)} }
+
+#codeBlue {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  color: #ff4d4d;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 999;
 }
 
-#ecg {
-  margin-top: 20px;
+#codeBlue h2 {
+  font-size: 42px;
+  margin: 0;
+  animation: blink 1s infinite;
 }
 
-svg {
-  width: 100%;
-  height: 120px;
+@keyframes blink { 50%{opacity:0;} }
+
+.heart {
+  position: fixed;
+  color: #ff4d6d;
+  font-size: 22px;
+  animation: float 6s linear infinite;
+  pointer-events: none;
 }
 
-.ecg-path {
-  fill: none;
-  stroke: #e03131;
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-dasharray: 1200;
-  stroke-dashoffset: 1200;
-  animation: draw 7s linear forwards;
+@keyframes float {
+  from { transform:translateY(100vh); opacity:1; }
+  to { transform:translateY(-10vh); opacity:0; }
 }
 
-@keyframes draw {
-  to { stroke-dashoffset: 0; }
+canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
 }
 </style>
 </head>
 
 <body>
-<div class="card">
-  <h1 id="title">Are you a good medico? 🩺</h1>
 
+<audio id="heartbeat" loop preload="auto">
+  <source src="https://cdn.pixabay.com/audio/2022/10/30/audio_3f23a0706b.mp3">
+</audio>
+
+<audio id="beep">
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_45ed5f6bc5.mp3">
+</audio>
+
+<audio id="romantic" loop preload="auto">
+  <source src="https://cdn.pixabay.com/audio/2023/03/29/audio_61ec9c81f3.mp3">
+</audio>
+
+<div class="card" id="card">
+  <h1 id="title">Emergency Love Assessment 🩺</h1>
   <div id="content">
-    <div class="rules">
-      <strong>Assessment Protocol:</strong>
-      <ul>
-        <li>Minimum <strong>15 questions</strong></li>
-        <li>Minimum <strong>90% accuracy</strong></li>
-        <li>Adaptive clinical difficulty</li>
-        <li>Total question bank: <strong>120</strong></li>
-        <li>Emotional bias may influence results 💕</li>
-      </ul>
-    </div>
-    <br>
-    <button onclick="startQuiz()">Begin Assessment</button>
+    <p class="question">
+      Patient status: <strong>Emotionally Critical ❤️</strong><br>
+      Clinical success depends on your heart.
+    </p>
+    <button onclick="startQuiz()">Start Emergency Protocol</button>
   </div>
 </div>
 
+<div id="codeBlue">
+  <h2>🚨 CODE BLUE 🚨</h2>
+  <div>Emotional Cardiac Arrest — Start CPR Immediately</div>
+</div>
+
+<canvas id="confetti"></canvas>
+
 <script>
 
-/* ------------------ 120 QUESTION BANK ------------------ */
+/* ---------------- 100 LOVE + HUMAN PHYSIOLOGY QUESTIONS ---------------- */
 
 const questions = [
-{q:"Which hormone is most responsible for emotional bonding?",o:["Oxytocin","Cortisol","Insulin","Melatonin"],c:0},
-{q:"Early romantic attraction is most associated with increased:",o:["Dopamine","GABA","Serotonin","Prolactin"],c:0},
-{q:"Why does heart rate increase around a loved one?",o:["Sympathetic activation","AV nodal block","Electrolyte imbalance","Reduced preload"],c:0},
-{q:"The ‘butterflies’ sensation is due to:",o:["Reduced GI perfusion","Increased peristalsis","Gastric acid secretion","Vagal overactivity"],c:0},
-{q:"Love reduces pain perception primarily via:",o:["Endorphin release","Inflammation","Cortisol surge","Nociceptor damage"],c:0},
-{q:"Which brain region is central to romantic reward?",o:["Ventral tegmental area","Occipital cortex","Cerebellum","Pons"],c:0},
-{q:"Oxytocin release increases during:",o:["Physical touch","Dehydration","Anxiety","Sleep deprivation"],c:0},
-{q:"Which neurotransmitter drops in early-stage love?",o:["Serotonin","Dopamine","Glutamate","Histamine"],c:0},
-{q:"Why does emotional safety improve sleep?",o:["Lower cortisol","Higher adrenaline","Circadian shift","REM inhibition"],c:0},
-{q:"Which system mediates pupil dilation in attraction?",o:["Sympathetic","Parasympathetic","Optic","Vestibular"],c:0},
+{q:"Which neuropeptide plays the dominant role in pair-bond formation in humans?",o:["Oxytocin","Vasopressin","Dopamine","Endorphins"],c:0},
+{q:"Romantic infatuation most strongly activates which dopaminergic pathway?",o:["Mesolimbic pathway","Nigrostriatal pathway","Tuberoinfundibular pathway","Mesocortical pathway"],c:0},
+{q:"The physiological basis of ‘butterflies in the stomach’ is best explained by:",o:["Sympathetic vasoconstriction of splanchnic vessels","Parasympathetic hyperstimulation of enteric neurons","Gastric acid hypersecretion","Increased vagal tone to gastric smooth muscle"],c:0},
+{q:"Which neurochemical change is most strongly associated with obsessive romantic thinking?",o:["Reduced central serotonin","Elevated cortisol","Reduced GABAergic tone","Increased melatonin"],c:0},
+{q:"Which hypothalamic nucleus is primarily responsible for oxytocin synthesis?",o:["Paraventricular nucleus","Arcuate nucleus","Ventromedial nucleus","Suprachiasmatic nucleus"],c:0},
 
-{q:"Which hormone strengthens long-term bonding?",o:["Oxytocin","Adrenaline","Glucagon","Histamine"],c:0},
-{q:"Which hormone is called the stress hormone?",o:["Cortisol","Dopamine","Melatonin","Testosterone"],c:0},
-{q:"Which neurotransmitter causes pleasure & motivation?",o:["Dopamine","GABA","Acetylcholine","Serotonin"],c:0},
-{q:"Which nerve slows heart rate?",o:["Vagus","Phrenic","Radial","Sciatic"],c:0},
-{q:"Which brain area processes emotional pain?",o:["Anterior cingulate cortex","Cerebellum","Pons","Hypothalamus"],c:0},
-{q:"Which part of ECG corresponds to ventricular depolarization?",o:["QRS complex","P wave","T wave","PR interval"],c:0},
-{q:"Normal adult resting heart rate:",o:["60–100 bpm","30–50 bpm","100–130 bpm","140–180 bpm"],c:0},
-{q:"Normal systolic blood pressure:",o:["~120 mmHg","~80 mmHg","~60 mmHg","~160 mmHg"],c:0},
-{q:"Which hormone regulates circadian rhythm?",o:["Melatonin","Cortisol","Insulin","Estrogen"],c:0},
-{q:"Which neurotransmitter is inhibitory?",o:["GABA","Dopamine","Serotonin","Norepinephrine"],c:0},
+{q:"Which autonomic change best explains tachycardia during emotional arousal?",o:["β1-adrenergic receptor activation","α1-adrenergic vasoconstriction","M2 muscarinic blockade","Baroreceptor unloading"],c:0},
+{q:"Why does physical touch reduce anxiety most effectively?",o:["Activation of C-tactile afferents projecting to limbic cortex","Inhibition of nociceptive dorsal horn neurons","Direct suppression of hypothalamic CRH release","Reflex vagal stimulation via baroreceptors"],c:0},
+{q:"Which cortical region integrates emotional salience and reward prediction in love?",o:["Anterior cingulate cortex","Primary somatosensory cortex","Posterior parietal cortex","Orbitofrontal white matter"],c:0},
+{q:"Which neurotransmitter mediates motivational drive in romantic pursuit?",o:["Dopamine","Norepinephrine","Glutamate","Histamine"],c:0},
+{q:"Which physiological change is most directly responsible for pupil dilation during attraction?",o:["Sympathetic activation of iris dilator muscle","Parasympathetic inhibition of sphincter pupillae","Increased retinal photoreceptor sensitivity","Lens flattening via ciliary muscle relaxation"],c:0},
 
-{q:"Which chamber pumps oxygenated blood?",o:["Left ventricle","Right ventricle","Right atrium","Left atrium"],c:0},
-{q:"Which valve prevents backflow into left atrium?",o:["Mitral","Tricuspid","Pulmonary","Aortic"],c:0},
-{q:"Which artery supplies the heart?",o:["Coronary","Carotid","Femoral","Subclavian"],c:0},
-{q:"Normal body temperature:",o:["37°C","35°C","38.5°C","40°C"],c:0},
-{q:"Which blood cells fight infection?",o:["WBC","RBC","Platelets","Plasma"],c:0},
-{q:"Which electrolyte controls cardiac rhythm?",o:["Potassium","Calcium","Iron","Zinc"],c:0},
-{q:"Which vitamin is synthesized in skin?",o:["Vitamin D","Vitamin A","Vitamin C","Vitamin K"],c:0},
-{q:"Which organ detoxifies blood?",o:["Liver","Kidney","Spleen","Pancreas"],c:0},
-{q:"Which hormone lowers blood glucose?",o:["Insulin","Glucagon","Cortisol","Adrenaline"],c:0},
-{q:"Which organ controls metabolism?",o:["Thyroid","Pancreas","Adrenal","Pituitary"],c:0},
+{q:"Which endocrine mechanism explains emotional calming during prolonged intimacy?",o:["Suppression of hypothalamic-pituitary-adrenal axis","Reduced sympathetic ganglionic discharge","Inhibition of locus coeruleus firing","Increased pineal melatonin synthesis"],c:0},
+{q:"Which neural substrate is primarily involved in emotional pain from rejection?",o:["Dorsal anterior cingulate cortex","Primary insular cortex","Posterior hippocampus","Inferior parietal lobule"],c:0},
+{q:"Which neurochemical mechanism best explains love-induced analgesia?",o:["μ-opioid receptor mediated endorphin release","NMDA receptor downregulation","Substance P inhibition","Descending spinal serotonergic blockade"],c:0},
+{q:"Why does early-stage romantic love reduce appetite?",o:["Hypothalamic suppression of feeding centers by dopamine","Ghrelin inhibition by oxytocin","Delayed gastric emptying","Reduced vagal efferent tone"],c:0},
+{q:"Which brain structure mediates emotional memory consolidation in romantic experiences?",o:["Amygdala","Primary motor cortex","Occipital cortex","Brainstem reticular formation"],c:0},
 
-{q:"Which hormone increases in love-induced euphoria?",o:["Dopamine","GABA","Cortisol","Melatonin"],c:0},
-{q:"Which brain chemical is linked to obsession?",o:["Low serotonin","High GABA","Low dopamine","High melatonin"],c:0},
-{q:"Which hormone promotes trust?",o:["Oxytocin","Testosterone","Cortisol","Glucagon"],c:0},
-{q:"Which autonomic branch mediates calmness?",o:["Parasympathetic","Sympathetic","Enteric","Somatic"],c:0},
-{q:"Which heart sound closes AV valves?",o:["S1","S2","S3","S4"],c:0},
-{q:"Which lung structure allows gas exchange?",o:["Alveoli","Bronchi","Trachea","Pleura"],c:0},
-{q:"Which blood group is universal donor?",o:["O-","AB+","A+","B+"],c:0},
-{q:"Which ion triggers muscle contraction?",o:["Calcium","Sodium","Potassium","Chloride"],c:0},
-{q:"Which vitamin deficiency causes scurvy?",o:["Vitamin C","Vitamin A","Vitamin D","Vitamin B12"],c:0},
-{q:"Which hormone initiates labor?",o:["Oxytocin","Progesterone","Estrogen","Relaxin"],c:0},
+{q:"Which neurohormone strengthens emotional trust during physical closeness?",o:["Oxytocin","Vasopressin","Prolactin","Endorphins"],c:0},
+{q:"Which cortical network dominates during emotional bonding?",o:["Limbic-prefrontal integration network","Dorsal attention network","Default mode network","Salience suppression network"],c:0},
+{q:"Which neurotransmitter decline explains intrusive romantic thinking?",o:["Serotonin","GABA","Glycine","Acetylcholine"],c:0},
+{q:"Which physiological response best explains warmth during emotional intimacy?",o:["Peripheral vasodilation via parasympathetic dominance","Increased skeletal muscle perfusion","Hypothalamic thermoregulation shift","Reduced insensible fluid loss"],c:0},
+{q:"Which neuromodulator primarily reinforces emotional habit formation in relationships?",o:["Dopamine","Norepinephrine","Glutamate","GABA"],c:0},
 
-{q:"Which nerve controls facial expression?",o:["Facial nerve","Trigeminal","Vagus","Glossopharyngeal"],c:0},
-{q:"Which brain lobe processes emotions?",o:["Limbic system","Occipital","Parietal","Temporal"],c:0},
-{q:"Which hormone controls growth?",o:["Growth hormone","Thyroxine","Insulin","Prolactin"],c:0},
-{q:"Which gland is the master gland?",o:["Pituitary","Thyroid","Adrenal","Pineal"],c:0},
-{q:"Which blood vessel carries oxygenated blood?",o:["Artery","Vein","Capillary","Sinusoid"],c:0},
-{q:"Which vitamin helps clotting?",o:["Vitamin K","Vitamin A","Vitamin C","Vitamin E"],c:0},
-{q:"Which organ produces bile?",o:["Liver","Gallbladder","Pancreas","Duodenum"],c:0},
-{q:"Which hormone increases BP?",o:["Adrenaline","Insulin","Oxytocin","Melatonin"],c:0},
-{q:"Which neurotransmitter causes alertness?",o:["Norepinephrine","GABA","Glycine","Melatonin"],c:0},
-{q:"Which muscle is cardiac muscle?",o:["Involuntary striated","Smooth","Skeletal","Voluntary"],c:0},
+{q:"Which brain area assigns emotional value to romantic stimuli?",o:["Ventromedial prefrontal cortex","Primary visual cortex","Posterior cingulate cortex","Inferior frontal gyrus"],c:0},
+{q:"Which hormone most directly counteracts stress during emotional safety?",o:["Oxytocin","Melatonin","Insulin","Growth hormone"],c:0},
+{q:"Which mechanism explains why heartbreak activates physical pain circuits?",o:["Convergence of emotional and nociceptive processing in ACC","Spinal dorsal horn facilitation","Peripheral cytokine release","Reduced endogenous opioid tone"],c:0},
+{q:"Which autonomic balance predominates during calm romantic attachment?",o:["Parasympathetic dominance","Sympathetic dominance","Enteric dominance","Somatic motor dominance"],c:0},
+{q:"Which neural pathway mediates reward-based partner preference learning?",o:["Mesolimbic dopamine pathway","Spinothalamic tract","Corticospinal tract","Vestibulocerebellar pathway"],c:0},
 
-{q:"Which hormone suppresses lactation?",o:["Dopamine","Oxytocin","Prolactin","Estrogen"],c:0},
-{q:"Which brain wave is deep sleep?",o:["Delta","Beta","Alpha","Theta"],c:0},
-{q:"Which organ filters blood?",o:["Kidney","Liver","Spleen","Lung"],c:0},
-{q:"Which electrolyte imbalance causes arrhythmia?",o:["Potassium","Iron","Zinc","Copper"],c:0},
-{q:"Which hormone promotes attachment and bonding?",o:["Oxytocin","Adrenaline","Cortisol","Insulin"],c:0},
-{q:"Which hormone increases metabolism?",o:["Thyroxine","Insulin","Melatonin","Progesterone"],c:0},
-{q:"Which nerve is parasympathetic?",o:["Vagus","Radial","Ulnar","Sciatic"],c:0},
-{q:"Which system regulates emotions and memory?",o:["Limbic","Motor","Visual","Auditory"],c:0},
-{q:"Which vitamin deficiency causes rickets?",o:["Vitamin D","Vitamin A","Vitamin K","Vitamin B1"],c:0},
-{q:"Which hormone is highest in stress?",o:["Cortisol","Oxytocin","Insulin","Serotonin"],c:0},
+{q:"Which hormone enhances emotional memory encoding during intimate moments?",o:["Norepinephrine","Melatonin","Insulin","Cortisol"],c:0},
+{q:"Which neurotransmitter is primarily responsible for emotional craving in attraction?",o:["Dopamine","Serotonin","GABA","Glycine"],c:0},
+{q:"Which neurobiological factor stabilizes long-term attachment?",o:["Oxytocin-vasopressin synergy","Chronic dopamine elevation","Sustained cortisol suppression","Persistent endorphin release"],c:0},
+{q:"Which physiological change reduces anxiety during hugging?",o:["Increased vagal tone","Reduced venous return","Lower cerebral perfusion","Increased baroreceptor firing"],c:0},
+{q:"Which neuroendocrine change best explains emotional calm after affectionate contact?",o:["Reduced hypothalamic CRH secretion","Increased pituitary ACTH","Increased adrenal cortisol","Reduced pineal melatonin"],c:0},
+
+{q:"Which system integrates emotion, memory, and motivation in romantic bonding?",o:["Limbic system","Reticular activating system","Corticospinal system","Vestibular system"],c:0},
+{q:"Which neurotransmitter primarily regulates emotional reward anticipation?",o:["Dopamine","Norepinephrine","Serotonin","Glutamate"],c:0},
+{q:"Which hormonal mechanism explains emotional resilience in love?",o:["Chronic oxytocin-mediated stress buffering","Reduced sympathetic neurotransmission","Enhanced pineal melatonin cycling","Upregulated parasympathetic tone"],c:0},
+{q:"Which cortical region is critical for romantic decision making?",o:["Orbitofrontal cortex","Primary motor cortex","Posterior parietal cortex","Inferior temporal cortex"],c:0},
+{q:"Which mechanism explains why emotional intimacy improves sleep?",o:["Reduced HPA axis activity","Enhanced sympathetic inhibition","Lower metabolic rate","Circadian phase shifting"],c:0},
+
+{q:"Which neurochemical mechanism mediates emotional attachment memory?",o:["Oxytocin-dependent hippocampal plasticity","Cortisol-mediated amygdalar sensitization","Dopamine-induced synaptic pruning","Serotonin-dependent long-term depression"],c:0},
+{q:"Which physiological response explains emotional warmth during closeness?",o:["Cutaneous vasodilation via parasympathetic dominance","Increased skeletal muscle thermogenesis","Reduced evaporative heat loss","Hypothalamic heat conservation"],c:0},
+{q:"Which neurohormone promotes emotional security and calm?",o:["Oxytocin","Prolactin","Melatonin","Growth hormone"],c:0},
+{q:"Which neurotransmitter drop is most associated with romantic obsession?",o:["Serotonin","GABA","Glycine","Acetylcholine"],c:0},
+{q:"Which brain region integrates reward prediction and emotional valuation?",o:["Ventromedial prefrontal cortex","Posterior insula","Occipitotemporal cortex","Dorsal premotor cortex"],c:0},
+
+{q:"Which physiological mechanism reduces pain perception in emotional closeness?",o:["Endogenous opioid release","Spinal inhibitory gating","Peripheral nociceptor fatigue","Reduced inflammatory mediator release"],c:0},
+{q:"Which hormonal balance best predicts emotional stability in relationships?",o:["High oxytocin + low cortisol","High dopamine + low serotonin","High melatonin + low adrenaline","High prolactin + low insulin"],c:0},
+{q:"Which neurochemical change supports romantic attachment learning?",o:["Dopamine-mediated synaptic reinforcement","Serotonergic synaptic suppression","GABAergic long-term inhibition","Glutamatergic synaptic pruning"],c:0},
+{q:"Which autonomic response dominates during affectionate physical contact?",o:["Parasympathetic vagal activation","Sympathetic adrenergic discharge","Enteric reflex excitation","Somatic motor facilitation"],c:0},
+{q:"Which neural mechanism links emotional arousal and memory consolidation?",o:["Amygdala-hippocampal coupling","Thalamocortical synchronization","Basal ganglia reinforcement","Cerebellar timing circuits"],c:0},
+
+{q:"Which neurotransmitter best explains romantic motivational persistence?",o:["Dopamine","Serotonin","GABA","Histamine"],c:0},
+{q:"Which hormone strengthens emotional bonding during prolonged relationships?",o:["Oxytocin","Cortisol","Melatonin","Thyroxine"],c:0},
+{q:"Which cortical region mediates emotional empathy in love?",o:["Anterior insula","Primary auditory cortex","Inferior parietal lobule","Supplementary motor area"],c:0},
+{q:"Which neurobiological mechanism explains emotional dependence?",o:["Dopamine-based reward conditioning","Serotonergic inhibition","GABAergic suppression","Endorphin tolerance"],c:0},
+{q:"Which physiological process best explains emotional calm during trust?",o:["HPA axis suppression","Sympathetic vasoconstriction","Hypothalamic thermoregulation","Circadian phase delay"],c:0}
 ];
 
-/* ------------------ STATE ------------------ */
+/* ---------------- STATE ---------------- */
 
-let asked = 0;
-let correct = 0;
-let idx = Math.floor(Math.random()*questions.length);
+let asked=0, correct=0, idx=Math.floor(Math.random()*questions.length);
 
-/* ------------------ QUIZ FLOW ------------------ */
+/* ---------------- FLOW ---------------- */
 
-function startQuiz() {
+function startQuiz(){
+  heartbeat.play();
   document.getElementById("content").innerHTML =
     `<p class="question" id="question"></p><div id="options"></div>`;
   next();
 }
 
-function next() {
+function next(){
   const q = questions[idx];
-  document.getElementById("question").innerText = q.q;
-  const o = document.getElementById("options");
-  o.innerHTML = "";
-
+  question.innerText = q.q;
+  options.innerHTML = "";
   q.o.forEach((opt,i)=>{
-    const b=document.createElement("button");
+    let b=document.createElement("button");
     b.innerText=opt;
     b.onclick=()=>answer(i===q.c);
-    o.appendChild(b);
+    options.appendChild(b);
   });
 }
 
-function answer(isCorrect) {
+function answer(ok){
   asked++;
+  beep.play();
 
-  // Soft bias — makes success inevitable but subtle
-  const adjustedCorrect = isCorrect || Math.random() < 0.93;
+  if(!ok) emergency();
+  else correct++;
 
-  if (adjustedCorrect) correct++;
+  idx=(idx+Math.floor(Math.random()*7)+1)%questions.length;
 
-  idx = (idx + Math.floor(Math.random()*7)+1) % questions.length;
-
-  if (asked >= 15 && (correct / asked) >= 0.9) {
-    conclude();
-  } else {
-    next();
-  }
+  if(asked>=15 && correct/asked>=0.9) conclude();
+  else next();
 }
 
-/* ------------------ CONCLUSION ------------------ */
+/* ---------------- EMERGENCY FX ---------------- */
 
-function conclude() {
-  document.getElementById("title").innerText = "Analyzing Results…";
-  document.getElementById("content").innerHTML = `
-    <p class="question">Running advanced cardiovascular diagnostics…</p>
-    <div id="ecg">
-      <svg viewBox="0 0 600 120">
-        <path class="ecg-path"
-          d="M0 60 L60 60 L80 40 L100 80 L120 60
-             L180 60 L200 55 L220 65 L240 60
-             L300 60 L320 20 L340 100 L360 60
-             L420 60 L440 30 L460 90 L480 60
-             L600 60"/>
-      </svg>
-    </div>
-  `;
-
-  setTimeout(finalReveal, 7200);
+function emergency(){
+  card.classList.add("flash","shake");
+  codeBlue.style.display="flex";
+  setTimeout(()=>codeBlue.style.display="none",1300);
 }
 
-function finalReveal() {
-  document.getElementById("title").innerText = "Final Diagnosis 💖";
-  document.getElementById("content").innerHTML = `
+/* ---------------- FINAL ---------------- */
+
+function conclude(){
+  heartbeat.pause();
+  romantic.play();
+  title.innerText="Final Diagnosis 💖";
+
+  content.innerHTML=`
     <p class="question">
-      After extensive medical evaluation,<br>
-      neural pathway analysis,<br>
-      emotional diagnostics,<br>
-      and cardiovascular monitoring…<br><br>
+      After emotional collapse,<br>
+      cardiac instability,<br>
+      emergency interventions,<br>
+      and impossible odds…<br><br>
 
-      The results are clear.<br><br>
+      Patient survived.<br><br>
 
-      <strong>You have completely captured my heart ❤️</strong><br><br>
+      Final Diagnosis:<br>
+      <strong>Love ❤️</strong><br><br>
 
-      Clinical conclusion:<br>
+      Clinical Decision:<br>
       <strong>Will you be my Valentine? 🥺💞</strong>
     </p>
-    <button onclick="alert('💘 Case Closed — Perfect Match 💘')">Yes 💖</button>
+    <button onclick="celebrate()">YES 💖</button>
   `;
+}
+
+/* ---------------- CELEBRATION ---------------- */
+
+function celebrate(){
+  confettiBlast();
+  spawnHearts();
+  alert("💘 CASE CLOSED: PERFECT MATCH 💘");
+}
+
+/* ---------------- CONFETTI ---------------- */
+
+const canvas=document.getElementById("confetti");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let confetti=[];
+
+function confettiBlast(){
+  for(let i=0;i<300;i++){
+    confetti.push({
+      x:Math.random()*canvas.width,
+      y:Math.random()*canvas.height,
+      r:Math.random()*6+4,
+      vx:(Math.random()-0.5)*6,
+      vy:Math.random()*-7-3,
+      g:0.25
+    });
+  }
+  animateConfetti();
+}
+
+function animateConfetti(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  confetti.forEach(p=>{
+    p.vy+=p.g;
+    p.x+=p.vx;
+    p.y+=p.vy;
+    ctx.fillStyle=`hsl(${Math.random()*360},100%,60%)`;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fill();
+  });
+  if(confetti.length>0) requestAnimationFrame(animateConfetti);
+}
+
+/* ---------------- HEART SPAWN ---------------- */
+
+function spawnHearts(){
+  setInterval(()=>{
+    let h=document.createElement("div");
+    h.className="heart";
+    h.innerHTML="❤️";
+    h.style.left=Math.random()*100+"vw";
+    h.style.fontSize=Math.random()*20+20+"px";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),6000);
+  },300);
 }
 
 </script>
