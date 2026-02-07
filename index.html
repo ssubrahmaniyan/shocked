@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Are You a Good Medico?</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
+      margin: 0;
+      min-height: 100vh;
       font-family: "Segoe UI", sans-serif;
       background: linear-gradient(135deg, #ffdde1, #ee9ca7);
-      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0;
     }
 
     .card {
       background: white;
       padding: 30px;
-      border-radius: 16px;
-      max-width: 420px;
+      border-radius: 18px;
+      max-width: 460px;
       width: 90%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.2);
       text-align: center;
     }
 
     h1 {
-      color: #d6336c;
+      color: #c2255c;
     }
 
     .question {
@@ -34,133 +34,187 @@
       margin-bottom: 20px;
     }
 
-    .options button {
-      display: block;
+    button {
       width: 100%;
       padding: 12px;
-      margin: 10px 0;
+      margin: 8px 0;
       border: none;
       border-radius: 8px;
       background: #ffe3ec;
-      cursor: pointer;
       font-size: 16px;
+      cursor: pointer;
       transition: 0.2s;
     }
 
-    .options button:hover {
-      background: #f783ac;
+    button:hover {
+      background: #f06595;
       color: white;
     }
 
-    .small {
-      font-size: 14px;
-      color: #555;
-      margin-top: 10px;
+    #ecg {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .line {
+      width: 100%;
+      height: 3px;
+      background: #e03131;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pulse {
+      width: 40px;
+      height: 3px;
+      background: white;
+      position: absolute;
+      left: -40px;
+      animation: pulse 1s linear infinite;
+    }
+
+    @keyframes pulse {
+      0% { left: -40px; }
+      100% { left: 100%; }
+    }
+
+    .flatline .pulse {
+      animation-duration: 4s;
+      opacity: 0.2;
+    }
+
+    .normal .pulse {
+      animation-duration: 0.7s;
+      opacity: 1;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 16px;
+      color: #444;
     }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <h1 id="title">Are you a good medico? 🩺</h1>
-    <p class="question" id="question">
-      Let’s find out how well you know the human body… especially when it’s in love 💕
-    </p>
+<div class="card">
+  <h1 id="title">Are you a good medico? 🩺</h1>
+  <p class="question" id="question">
+    Let’s assess your understanding of the human body… when it’s in love 💕
+  </p>
 
-    <div class="options" id="options">
-      <button onclick="nextQuestion()">Start Quiz</button>
-    </div>
-
-    <p class="small" id="footer"></p>
+  <div id="options">
+    <button onclick="nextQuestion()">Begin Assessment</button>
   </div>
 
-  <script>
-    const quiz = [
-      {
-        q: "When someone falls in love, which hormone spikes the most?",
-        a: ["Dopamine", "Oxytocin", "Serotonin", "All of the above"]
-      },
-      {
-        q: "Why does your heart rate increase around someone you love?",
-        a: [
-          "Sympathetic nervous system activation",
-          "Adrenaline release",
-          "Because love is cardio",
-          "All of the above (obviously)"
-        ]
-      },
-      {
-        q: "Why do people feel butterflies in their stomach?",
-        a: [
-          "Reduced blood flow to the GI tract",
-          "Autonomic nervous system response",
-          "The stomach is dramatic",
-          "Science + feelings"
-        ]
-      },
-      {
-        q: "Being in love can actually reduce:",
-        a: [
-          "Stress levels",
-          "Perceived pain",
-          "Loneliness",
-          "All of the above"
-        ]
-      },
-      {
-        q: "Final and most important question:",
-        a: [
-          "Am I clinically adorable?",
-          "Is this quiz biased?",
-          "Do you want to be my Valentine?",
-          "Yes."
-        ]
-      }
-    ];
+  <div id="ecg">
+    <div class="line" id="ecgLine">
+      <div class="pulse"></div>
+    </div>
+    <div class="status" id="statusText"></div>
+  </div>
+</div>
 
-    let index = 0;
+<script>
+  const quiz = [
+    { q: "Which neurotransmitter is most associated with pleasure and reward in love?" },
+    { q: "What happens to cortisol levels in a healthy romantic relationship?" },
+    { q: "Why does seeing someone you love activate the brain’s reward system?" },
+    { q: "Which part of the brain lights up during romantic attachment?" },
+    { q: "Why does love sometimes reduce the perception of pain?" },
+    { q: "What causes dilated pupils when attracted to someone?" },
+    { q: "Why does heart rate synchronize between close partners?" },
+    { q: "What role does oxytocin play in emotional bonding?" },
+    { q: "Why does emotional intimacy improve immune response?" },
+    { q: "What physiological system is responsible for ‘butterflies’?" },
+    { q: "Why does love improve sleep quality over time?" },
+    { q: "Why do we crave physical closeness with someone special?" },
+    { q: "Final clinical question:" }
+  ];
 
-    function nextQuestion() {
-      if (index < quiz.length) {
-        document.getElementById("question").innerText = quiz[index].q;
-        const optionsDiv = document.getElementById("options");
-        optionsDiv.innerHTML = "";
+  const optionsList = [
+    "Dopamine",
+    "Oxytocin",
+    "Autonomic response",
+    "Neural plasticity",
+    "Psychosomatic effect",
+    "All of the above",
+    "Science is beautiful",
+    "This feels suspiciously romantic",
+    "I need peer-reviewed evidence",
+    "I know this one 😌",
+    "Medically speaking… yes",
+    "Emotionally speaking… yes",
+    "Yes."
+  ];
 
-        quiz[index].a.forEach(opt => {
-          const btn = document.createElement("button");
-          btn.innerText = opt;
-          btn.onclick = () => {
-            index++;
-            nextQuestion();
-          };
-          optionsDiv.appendChild(btn);
-        });
+  let index = 0;
 
-        document.getElementById("footer").innerText =
-          `Question ${index + 1} of ${quiz.length}`;
-      } else {
-        finishQuiz();
-      }
+  function nextQuestion() {
+    if (index < quiz.length) {
+      document.getElementById("question").innerText = quiz[index].q;
+      const options = document.getElementById("options");
+      options.innerHTML = "";
+
+      optionsList.slice(0, 4).forEach(opt => {
+        const btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.onclick = () => {
+          index++;
+          nextQuestion();
+        };
+        options.appendChild(btn);
+      });
+    } else {
+      startDiagnosis();
     }
+  }
 
-    function finishQuiz() {
-      document.getElementById("title").innerText = "Diagnosis: 💖 Valentine 💖";
-      document.getElementById("question").innerHTML = `
-        According to extensive research (conducted entirely by me),
-        you are an excellent medico <br><br>
-        and regardless of your answers…<br><br>
-        <strong>Thank you for being my Valentine 🥰</strong>
-      `;
-      document.getElementById("options").innerHTML = `
-        <button onclick="confetti()">Aww ❤️</button>
-      `;
-      document.getElementById("footer").innerText = "Case closed.";
-    }
+  function startDiagnosis() {
+    document.getElementById("title").innerText = "Evaluating Results…";
+    document.getElementById("question").innerText =
+      "Please wait. Running cardiovascular and emotional analysis.";
+    document.getElementById("options").innerHTML = "";
+    document.getElementById("ecg").style.display = "block";
 
-    function confetti() {
-      alert("💘 Officially Valentines 💘");
-    }
-  </script>
+    const ecgLine = document.getElementById("ecgLine");
+    const status = document.getElementById("statusText");
+
+    status.innerText = "Heart rate slowing…";
+    ecgLine.classList.add("flatline");
+
+    setTimeout(() => {
+      status.innerText = "Uh oh… losing signal…";
+    }, 4000);
+
+    setTimeout(() => {
+      status.innerText = "Wait…";
+    }, 7000);
+
+    setTimeout(() => {
+      ecgLine.classList.remove("flatline");
+      ecgLine.classList.add("normal");
+      status.innerText = "❤️ Heart rate restored!";
+    }, 9000);
+
+    setTimeout(() => {
+      finish();
+    }, 11000);
+  }
+
+  function finish() {
+    document.getElementById("title").innerText = "Final Diagnosis 💖";
+    document.getElementById("question").innerHTML = `
+      According to extensive clinical evaluation,<br><br>
+      you are an excellent medico.<br><br>
+      And regardless of your answers…<br><br>
+      <strong>Thank you for being my Valentine 🥰</strong>
+    `;
+    document.getElementById("ecg").style.display = "none";
+    document.getElementById("options").innerHTML =
+      `<button onclick="alert('💘 Case closed. Happy Valentine’s Day 💘')">Aww ❤️</button>`;
+  }
+</script>
 
 </body>
 </html>
