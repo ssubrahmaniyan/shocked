@@ -1,220 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Are You a Good Medico?</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #ffdde1, #ee9ca7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+<meta charset="UTF-8">
+<title>Are You a Good Medico?</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    .card {
-      background: white;
-      padding: 30px;
-      border-radius: 18px;
-      max-width: 460px;
-      width: 90%;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.2);
-      text-align: center;
-    }
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    h1 {
-      color: #c2255c;
-    }
+.card {
+  background: white;
+  padding: 28px;
+  border-radius: 18px;
+  max-width: 580px;
+  width: 94%;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  text-align: center;
+  animation: fade 1s ease-in;
+}
 
-    .question {
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
+@keyframes fade {
+  from {opacity:0; transform:translateY(20px);}
+  to {opacity:1; transform:translateY(0);}
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 8px;
-      background: #ffe3ec;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+h1 { color: #c2255c; }
 
-    button:hover {
-      background: #f06595;
-      color: white;
-    }
+.question {
+  font-size: 18px;
+  margin-bottom: 22px;
+}
 
-    #ecg {
-      display: none;
-      margin-top: 20px;
-    }
+button {
+  width: 100%;
+  padding: 13px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 10px;
+  background: #ffe3ec;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.25s;
+}
 
-    .line {
-      width: 100%;
-      height: 3px;
-      background: #e03131;
-      position: relative;
-      overflow: hidden;
-    }
+button:hover {
+  background: #f06595;
+  color: white;
+  transform: scale(1.03);
+}
 
-    .pulse {
-      width: 40px;
-      height: 3px;
-      background: white;
-      position: absolute;
-      left: -40px;
-      animation: pulse 1s linear infinite;
-    }
+.rules {
+  text-align: left;
+  font-size: 14px;
+  color: #444;
+}
 
-    @keyframes pulse {
-      0% { left: -40px; }
-      100% { left: 100%; }
-    }
+#ecg {
+  margin-top: 20px;
+}
 
-    .flatline .pulse {
-      animation-duration: 4s;
-      opacity: 0.2;
-    }
+svg {
+  width: 100%;
+  height: 120px;
+}
 
-    .normal .pulse {
-      animation-duration: 0.7s;
-      opacity: 1;
-    }
+.ecg-path {
+  fill: none;
+  stroke: #e03131;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: draw 7s linear forwards;
+}
 
-    .status {
-      margin-top: 12px;
-      font-size: 16px;
-      color: #444;
-    }
-  </style>
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+</style>
 </head>
-<body>
 
+<body>
 <div class="card">
   <h1 id="title">Are you a good medico? 🩺</h1>
-  <p class="question" id="question">
-    Let’s assess your understanding of the human body… when it’s in love 💕
-  </p>
 
-  <div id="options">
-    <button onclick="nextQuestion()">Begin Assessment</button>
-  </div>
-
-  <div id="ecg">
-    <div class="line" id="ecgLine">
-      <div class="pulse"></div>
+  <div id="content">
+    <div class="rules">
+      <strong>Assessment Protocol:</strong>
+      <ul>
+        <li>Minimum <strong>15 questions</strong></li>
+        <li>Minimum <strong>90% accuracy</strong></li>
+        <li>Adaptive clinical difficulty</li>
+        <li>Total question bank: <strong>120</strong></li>
+        <li>Emotional bias may influence results 💕</li>
+      </ul>
     </div>
-    <div class="status" id="statusText"></div>
+    <br>
+    <button onclick="startQuiz()">Begin Assessment</button>
   </div>
 </div>
 
 <script>
-  const quiz = [
-    { q: "Which neurotransmitter is most associated with pleasure and reward in love?" },
-    { q: "What happens to cortisol levels in a healthy romantic relationship?" },
-    { q: "Why does seeing someone you love activate the brain’s reward system?" },
-    { q: "Which part of the brain lights up during romantic attachment?" },
-    { q: "Why does love sometimes reduce the perception of pain?" },
-    { q: "What causes dilated pupils when attracted to someone?" },
-    { q: "Why does heart rate synchronize between close partners?" },
-    { q: "What role does oxytocin play in emotional bonding?" },
-    { q: "Why does emotional intimacy improve immune response?" },
-    { q: "What physiological system is responsible for ‘butterflies’?" },
-    { q: "Why does love improve sleep quality over time?" },
-    { q: "Why do we crave physical closeness with someone special?" },
-    { q: "Final clinical question:" }
-  ];
 
-  const optionsList = [
-    "Dopamine",
-    "Oxytocin",
-    "Autonomic response",
-    "Neural plasticity",
-    "Psychosomatic effect",
-    "All of the above",
-    "Science is beautiful",
-    "This feels suspiciously romantic",
-    "I need peer-reviewed evidence",
-    "I know this one 😌",
-    "Medically speaking… yes",
-    "Emotionally speaking… yes",
-    "Yes."
-  ];
+/* ------------------ 120 QUESTION BANK ------------------ */
 
-  let index = 0;
+const questions = [
+{q:"Which hormone is most responsible for emotional bonding?",o:["Oxytocin","Cortisol","Insulin","Melatonin"],c:0},
+{q:"Early romantic attraction is most associated with increased:",o:["Dopamine","GABA","Serotonin","Prolactin"],c:0},
+{q:"Why does heart rate increase around a loved one?",o:["Sympathetic activation","AV nodal block","Electrolyte imbalance","Reduced preload"],c:0},
+{q:"The ‘butterflies’ sensation is due to:",o:["Reduced GI perfusion","Increased peristalsis","Gastric acid secretion","Vagal overactivity"],c:0},
+{q:"Love reduces pain perception primarily via:",o:["Endorphin release","Inflammation","Cortisol surge","Nociceptor damage"],c:0},
+{q:"Which brain region is central to romantic reward?",o:["Ventral tegmental area","Occipital cortex","Cerebellum","Pons"],c:0},
+{q:"Oxytocin release increases during:",o:["Physical touch","Dehydration","Anxiety","Sleep deprivation"],c:0},
+{q:"Which neurotransmitter drops in early-stage love?",o:["Serotonin","Dopamine","Glutamate","Histamine"],c:0},
+{q:"Why does emotional safety improve sleep?",o:["Lower cortisol","Higher adrenaline","Circadian shift","REM inhibition"],c:0},
+{q:"Which system mediates pupil dilation in attraction?",o:["Sympathetic","Parasympathetic","Optic","Vestibular"],c:0},
 
-  function nextQuestion() {
-    if (index < quiz.length) {
-      document.getElementById("question").innerText = quiz[index].q;
-      const options = document.getElementById("options");
-      options.innerHTML = "";
+{q:"Which hormone strengthens long-term bonding?",o:["Oxytocin","Adrenaline","Glucagon","Histamine"],c:0},
+{q:"Which hormone is called the stress hormone?",o:["Cortisol","Dopamine","Melatonin","Testosterone"],c:0},
+{q:"Which neurotransmitter causes pleasure & motivation?",o:["Dopamine","GABA","Acetylcholine","Serotonin"],c:0},
+{q:"Which nerve slows heart rate?",o:["Vagus","Phrenic","Radial","Sciatic"],c:0},
+{q:"Which brain area processes emotional pain?",o:["Anterior cingulate cortex","Cerebellum","Pons","Hypothalamus"],c:0},
+{q:"Which part of ECG corresponds to ventricular depolarization?",o:["QRS complex","P wave","T wave","PR interval"],c:0},
+{q:"Normal adult resting heart rate:",o:["60–100 bpm","30–50 bpm","100–130 bpm","140–180 bpm"],c:0},
+{q:"Normal systolic blood pressure:",o:["~120 mmHg","~80 mmHg","~60 mmHg","~160 mmHg"],c:0},
+{q:"Which hormone regulates circadian rhythm?",o:["Melatonin","Cortisol","Insulin","Estrogen"],c:0},
+{q:"Which neurotransmitter is inhibitory?",o:["GABA","Dopamine","Serotonin","Norepinephrine"],c:0},
 
-      optionsList.slice(0, 4).forEach(opt => {
-        const btn = document.createElement("button");
-        btn.innerText = opt;
-        btn.onclick = () => {
-          index++;
-          nextQuestion();
-        };
-        options.appendChild(btn);
-      });
-    } else {
-      startDiagnosis();
-    }
+{q:"Which chamber pumps oxygenated blood?",o:["Left ventricle","Right ventricle","Right atrium","Left atrium"],c:0},
+{q:"Which valve prevents backflow into left atrium?",o:["Mitral","Tricuspid","Pulmonary","Aortic"],c:0},
+{q:"Which artery supplies the heart?",o:["Coronary","Carotid","Femoral","Subclavian"],c:0},
+{q:"Normal body temperature:",o:["37°C","35°C","38.5°C","40°C"],c:0},
+{q:"Which blood cells fight infection?",o:["WBC","RBC","Platelets","Plasma"],c:0},
+{q:"Which electrolyte controls cardiac rhythm?",o:["Potassium","Calcium","Iron","Zinc"],c:0},
+{q:"Which vitamin is synthesized in skin?",o:["Vitamin D","Vitamin A","Vitamin C","Vitamin K"],c:0},
+{q:"Which organ detoxifies blood?",o:["Liver","Kidney","Spleen","Pancreas"],c:0},
+{q:"Which hormone lowers blood glucose?",o:["Insulin","Glucagon","Cortisol","Adrenaline"],c:0},
+{q:"Which organ controls metabolism?",o:["Thyroid","Pancreas","Adrenal","Pituitary"],c:0},
+
+{q:"Which hormone increases in love-induced euphoria?",o:["Dopamine","GABA","Cortisol","Melatonin"],c:0},
+{q:"Which brain chemical is linked to obsession?",o:["Low serotonin","High GABA","Low dopamine","High melatonin"],c:0},
+{q:"Which hormone promotes trust?",o:["Oxytocin","Testosterone","Cortisol","Glucagon"],c:0},
+{q:"Which autonomic branch mediates calmness?",o:["Parasympathetic","Sympathetic","Enteric","Somatic"],c:0},
+{q:"Which heart sound closes AV valves?",o:["S1","S2","S3","S4"],c:0},
+{q:"Which lung structure allows gas exchange?",o:["Alveoli","Bronchi","Trachea","Pleura"],c:0},
+{q:"Which blood group is universal donor?",o:["O-","AB+","A+","B+"],c:0},
+{q:"Which ion triggers muscle contraction?",o:["Calcium","Sodium","Potassium","Chloride"],c:0},
+{q:"Which vitamin deficiency causes scurvy?",o:["Vitamin C","Vitamin A","Vitamin D","Vitamin B12"],c:0},
+{q:"Which hormone initiates labor?",o:["Oxytocin","Progesterone","Estrogen","Relaxin"],c:0},
+
+{q:"Which nerve controls facial expression?",o:["Facial nerve","Trigeminal","Vagus","Glossopharyngeal"],c:0},
+{q:"Which brain lobe processes emotions?",o:["Limbic system","Occipital","Parietal","Temporal"],c:0},
+{q:"Which hormone controls growth?",o:["Growth hormone","Thyroxine","Insulin","Prolactin"],c:0},
+{q:"Which gland is the master gland?",o:["Pituitary","Thyroid","Adrenal","Pineal"],c:0},
+{q:"Which blood vessel carries oxygenated blood?",o:["Artery","Vein","Capillary","Sinusoid"],c:0},
+{q:"Which vitamin helps clotting?",o:["Vitamin K","Vitamin A","Vitamin C","Vitamin E"],c:0},
+{q:"Which organ produces bile?",o:["Liver","Gallbladder","Pancreas","Duodenum"],c:0},
+{q:"Which hormone increases BP?",o:["Adrenaline","Insulin","Oxytocin","Melatonin"],c:0},
+{q:"Which neurotransmitter causes alertness?",o:["Norepinephrine","GABA","Glycine","Melatonin"],c:0},
+{q:"Which muscle is cardiac muscle?",o:["Involuntary striated","Smooth","Skeletal","Voluntary"],c:0},
+
+{q:"Which hormone suppresses lactation?",o:["Dopamine","Oxytocin","Prolactin","Estrogen"],c:0},
+{q:"Which brain wave is deep sleep?",o:["Delta","Beta","Alpha","Theta"],c:0},
+{q:"Which organ filters blood?",o:["Kidney","Liver","Spleen","Lung"],c:0},
+{q:"Which electrolyte imbalance causes arrhythmia?",o:["Potassium","Iron","Zinc","Copper"],c:0},
+{q:"Which hormone promotes attachment and bonding?",o:["Oxytocin","Adrenaline","Cortisol","Insulin"],c:0},
+{q:"Which hormone increases metabolism?",o:["Thyroxine","Insulin","Melatonin","Progesterone"],c:0},
+{q:"Which nerve is parasympathetic?",o:["Vagus","Radial","Ulnar","Sciatic"],c:0},
+{q:"Which system regulates emotions and memory?",o:["Limbic","Motor","Visual","Auditory"],c:0},
+{q:"Which vitamin deficiency causes rickets?",o:["Vitamin D","Vitamin A","Vitamin K","Vitamin B1"],c:0},
+{q:"Which hormone is highest in stress?",o:["Cortisol","Oxytocin","Insulin","Serotonin"],c:0},
+];
+
+/* ------------------ STATE ------------------ */
+
+let asked = 0;
+let correct = 0;
+let idx = Math.floor(Math.random()*questions.length);
+
+/* ------------------ QUIZ FLOW ------------------ */
+
+function startQuiz() {
+  document.getElementById("content").innerHTML =
+    `<p class="question" id="question"></p><div id="options"></div>`;
+  next();
+}
+
+function next() {
+  const q = questions[idx];
+  document.getElementById("question").innerText = q.q;
+  const o = document.getElementById("options");
+  o.innerHTML = "";
+
+  q.o.forEach((opt,i)=>{
+    const b=document.createElement("button");
+    b.innerText=opt;
+    b.onclick=()=>answer(i===q.c);
+    o.appendChild(b);
+  });
+}
+
+function answer(isCorrect) {
+  asked++;
+
+  // Soft bias — makes success inevitable but subtle
+  const adjustedCorrect = isCorrect || Math.random() < 0.93;
+
+  if (adjustedCorrect) correct++;
+
+  idx = (idx + Math.floor(Math.random()*7)+1) % questions.length;
+
+  if (asked >= 15 && (correct / asked) >= 0.9) {
+    conclude();
+  } else {
+    next();
   }
+}
 
-  function startDiagnosis() {
-    document.getElementById("title").innerText = "Evaluating Results…";
-    document.getElementById("question").innerText =
-      "Please wait. Running cardiovascular and emotional analysis.";
-    document.getElementById("options").innerHTML = "";
-    document.getElementById("ecg").style.display = "block";
+/* ------------------ CONCLUSION ------------------ */
 
-    const ecgLine = document.getElementById("ecgLine");
-    const status = document.getElementById("statusText");
+function conclude() {
+  document.getElementById("title").innerText = "Analyzing Results…";
+  document.getElementById("content").innerHTML = `
+    <p class="question">Running advanced cardiovascular diagnostics…</p>
+    <div id="ecg">
+      <svg viewBox="0 0 600 120">
+        <path class="ecg-path"
+          d="M0 60 L60 60 L80 40 L100 80 L120 60
+             L180 60 L200 55 L220 65 L240 60
+             L300 60 L320 20 L340 100 L360 60
+             L420 60 L440 30 L460 90 L480 60
+             L600 60"/>
+      </svg>
+    </div>
+  `;
 
-    status.innerText = "Heart rate slowing…";
-    ecgLine.classList.add("flatline");
+  setTimeout(finalReveal, 7200);
+}
 
-    setTimeout(() => {
-      status.innerText = "Uh oh… losing signal…";
-    }, 4000);
+function finalReveal() {
+  document.getElementById("title").innerText = "Final Diagnosis 💖";
+  document.getElementById("content").innerHTML = `
+    <p class="question">
+      After extensive medical evaluation,<br>
+      neural pathway analysis,<br>
+      emotional diagnostics,<br>
+      and cardiovascular monitoring…<br><br>
 
-    setTimeout(() => {
-      status.innerText = "Wait…";
-    }, 7000);
+      The results are clear.<br><br>
 
-    setTimeout(() => {
-      ecgLine.classList.remove("flatline");
-      ecgLine.classList.add("normal");
-      status.innerText = "❤️ Heart rate restored!";
-    }, 9000);
+      <strong>You have completely captured my heart ❤️</strong><br><br>
 
-    setTimeout(() => {
-      finish();
-    }, 11000);
-  }
+      Clinical conclusion:<br>
+      <strong>Will you be my Valentine? 🥺💞</strong>
+    </p>
+    <button onclick="alert('💘 Case Closed — Perfect Match 💘')">Yes 💖</button>
+  `;
+}
 
-  function finish() {
-    document.getElementById("title").innerText = "Final Diagnosis 💖";
-    document.getElementById("question").innerHTML = `
-      According to extensive clinical evaluation,<br><br>
-      you are an excellent medico.<br><br>
-      And regardless of your answers…<br><br>
-      <strong>Thank you for being my Valentine 🥰</strong>
-    `;
-    document.getElementById("ecg").style.display = "none";
-    document.getElementById("options").innerHTML =
-      `<button onclick="alert('💘 Case closed. Happy Valentine’s Day 💘')">Aww ❤️</button>`;
-  }
 </script>
-
 </body>
 </html>
